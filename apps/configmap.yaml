@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-env
+  namespace: lanchonete-app
+data:
+  APP_ENV: "production"
+  CONTEXT_TIMEOUT: "30"
+  DB_HOST: "rds-endpoint.amazonaws.com"
+  DB_NAME: "lanchonete"
+  DB_PORT: "3306"
+  DB_USER: "admin"
+  PORT: "8080"
+  REDIS_ADDRESS: "redis:6379"
+  SERVER_ADDRESS: ":8080"
+  ACCESS_TOKEN_EXPIRY_HOUR: "1"
+  REFRESH_TOKEN_EXPIRY_HOUR: "12"
