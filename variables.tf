@@ -1,3 +1,3 @@
 variable "namespace" {
-  default = "techchallenge"
+  default = "lanchonete-app"
 }
