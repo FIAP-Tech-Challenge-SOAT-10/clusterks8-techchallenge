@@ -1,27 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    service: webhook
   name: webhook
+  namespace: lanchonete-app
+  labels:
+    app: webhook
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: webhook
+      app: webhook
   template:
     metadata:
       labels:
-        service: webhook
+        app: webhook
     spec:
       containers:
-        - env:
+        - name: webhook
+          image: juclops/techchallenge-webhook:latest
+          ports:
+            - containerPort: 8081
+          env:
             - name: REDIS_ADDRESS
-              valueFrom:
-                configMapKeyRef:
-                  key: REDIS_ADDRESS
-                  name: webhook-env
-          image: akzsato/webhook
-          name: webhook
-      hostname: webhook
-      restartPolicy: Always
+              value: redis:6379
