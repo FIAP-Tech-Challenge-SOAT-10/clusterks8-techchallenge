@@ -18,7 +18,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: app
-          image: imagem_a_definir/app:latest
+          image: juclops/techchallenge-app:v1.1.1
           ports:
             - containerPort: 8080
           envFrom:

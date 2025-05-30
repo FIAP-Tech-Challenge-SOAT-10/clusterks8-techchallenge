@@ -1,24 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels:
-    service: redis
   name: redis
+  namespace: lanchonete-app
+  labels:
+    app: redis
 spec:
   replicas: 1
   selector:
     matchLabels:
-      service: redis
+      app: redis
   template:
     metadata:
       labels:
-        service: redis
+        app: redis
     spec:
       containers:
-        - image: akzsato/redis
-          name: redis
+        - name: redis
+          image: redis:7.2-alpine
           ports:
             - containerPort: 6379
-              protocol: TCP
-      hostname: redis
-      restartPolicy: Always
