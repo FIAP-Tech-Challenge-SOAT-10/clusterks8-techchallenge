@@ -15,22 +15,13 @@ resource "kubectl_manifest" "app_service" {
   yaml_body = file("${path.module}/k8s/app/service.yaml")
 }
 
-# MongoDB
-resource "kubectl_manifest" "mongo_deployment" {
-  yaml_body = file("${path.module}/k8s/db/mongo-deployment.yaml")
-}
-
-resource "kubectl_manifest" "mongo_service" {
-  yaml_body = file("${path.module}/k8s/db/mongo-service.yaml")
-}
-
 # Redis
 resource "kubectl_manifest" "redis_deployment" {
-  yaml_body = file("${path.module}/k8s/db/redis-deployment.yaml")
+  yaml_body = file("${path.module}/k8s/redis/redis-deployment.yaml")
 }
 
 resource "kubectl_manifest" "redis_service" {
-  yaml_body = file("${path.module}/k8s/db/redis-service.yaml")
+  yaml_body = file("${path.module}/k8s/redis/redis-service.yaml")
 }
 
 # Webhook
