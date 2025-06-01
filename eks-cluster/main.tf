@@ -1,24 +1,40 @@
-# Busca a VPC existente com a tag Name = "eks-vpc"
-data "aws_vpc" "eks" {
+# Verifica se a VPC com a tag Name = "eks-vpc" já existe
+# Se existir, usaremos ela. Caso contrário, criaremos uma nova.
+data "aws_vpc" "existing" {
   filter {
     name   = "tag:Name"
     values = ["eks-vpc"]
   }
+  count = 1
+}
+
+# Cria nova VPC apenas se não existir uma com a tag "eks-vpc"
+resource "aws_vpc" "eks" {
+  count                = data.aws_vpc.existing[0].id != "" ? 0 : 1
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name = "eks-vpc"
+  }
+}
+
+# Define o ID da VPC a ser usada (existente ou nova)
+locals {
+  vpc_id = data.aws_vpc.existing[0].id != "" ? data.aws_vpc.existing[0].id : aws_vpc.eks[0].id
 }
 
 data "aws_availability_zones" "available" {}
 
-resource "aws_vpc" "eks" {
-  count = 0 # Prevents creation of a new VPC
-}
-
 # Subnets públicas
 resource "aws_subnet" "eks_public" {
   count                   = 2
-  vpc_id                  = data.aws_vpc.eks.id
-  cidr_block              = cidrsubnet(data.aws_vpc.eks.cidr_block, 8, count.index)
+  vpc_id                  = local.vpc_id
+  cidr_block              = cidrsubnet("10.0.0.0/16", 8, count.index)
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[count.index]
+
   tags = {
     Name = "eks-public-${count.index}"
   }
@@ -26,12 +42,12 @@ resource "aws_subnet" "eks_public" {
 
 # Internet Gateway
 resource "aws_internet_gateway" "eks" {
-  vpc_id = data.aws_vpc.eks.id
+  vpc_id = local.vpc_id
 }
 
 # Route Table
 resource "aws_route_table" "eks_public" {
-  vpc_id = data.aws_vpc.eks.id
+  vpc_id = local.vpc_id
 
   route {
     cidr_block = "0.0.0.0/0"
