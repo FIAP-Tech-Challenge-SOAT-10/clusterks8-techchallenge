@@ -3,7 +3,7 @@ variable "aws_region" {
 }
 
 variable "cluster_name" {
-  default = "eks-lanchonete-cluster"
+  default = "eks-lanchonete"
 }
 
 variable "node_instance_type" {
