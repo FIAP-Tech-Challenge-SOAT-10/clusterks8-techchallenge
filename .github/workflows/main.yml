@@ -11,6 +11,10 @@ jobs:
     name: Apply Terraform on EKS
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write
+      contents: read
+
     env:
       CLUSTER_NAME: fiap-tech-challenge
       AWS_REGION: ${{ secrets.AWS_REGION }}
