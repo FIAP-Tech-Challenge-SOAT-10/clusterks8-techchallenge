@@ -60,6 +60,10 @@ resource "aws_iam_role" "eks_cluster_role" {
       Action = "sts:AssumeRole"
     }]
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_AmazonEKSClusterPolicy" {
@@ -80,6 +84,10 @@ resource "aws_iam_role" "eks_node_group_role" {
       Action = "sts:AssumeRole"
     }]
   })
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "node_group_policies" {
