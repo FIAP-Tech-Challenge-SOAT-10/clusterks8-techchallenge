@@ -16,7 +16,7 @@ jobs:
       contents: read
 
     env:
-      CLUSTER_NAME: fiap-tech-challenge
+      CLUSTER_NAME: tech_challenge
       AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
