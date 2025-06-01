@@ -12,6 +12,7 @@ jobs:
       contents: read
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
+      CLUSTER_NAME: eks-lanchonete
 
     steps:
       - uses: actions/checkout@v3
@@ -38,26 +39,16 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: Debug Cluster Name Output
-        working-directory: eks-cluster
-        run: terraform output -raw eks_cluster_name
+        run: echo "Using cluster: ${{ env.CLUSTER_NAME }}"
 
-      - name: Get Cluster Name (raw and clean)
-        id: get_output
-        working-directory: eks-cluster
-        run: |
-          cluster_name=$(terraform output -raw eks_cluster_name | tr -d '\n\r ')
-          echo "Cluster name used: $cluster_name"
-          echo "cluster_name=$cluster_name" >> $GITHUB_OUTPUT
-
-      - name: Print cluster name from output
-        run: |
-          echo "Cluster name from output: ${{ steps.get_output.outputs.cluster_name }}"
-
+      # =======================
+      # KUBECONFIG
+      # =======================
       - name: Generate kubeconfig
         run: |
           aws eks update-kubeconfig \
             --region ${{ env.AWS_REGION }} \
-            --name ${{ steps.get_output.outputs.cluster_name }}
+            --name ${{ env.CLUSTER_NAME }}
 
       # =======================
       # APPLY MANIFESTS COM KUBECTL PROVIDER
