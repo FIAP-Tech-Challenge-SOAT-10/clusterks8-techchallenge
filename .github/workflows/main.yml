@@ -38,9 +38,6 @@ jobs:
         working-directory: eks-cluster
         run: terraform apply -auto-approve
 
-      - name: Debug Cluster Name Output
-        run: echo "Using cluster: ${{ env.CLUSTER_NAME }}"
-
       # =======================
       # KUBECONFIG
       # =======================
