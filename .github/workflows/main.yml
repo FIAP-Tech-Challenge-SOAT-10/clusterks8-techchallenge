@@ -37,11 +37,16 @@ jobs:
         working-directory: eks-cluster
         run: terraform apply -auto-approve
 
+      - name: Debug Cluster Name Output
+        working-directory: eks-cluster
+        run: terraform output -raw eks_cluster_name
+
       - name: Get Cluster Name
         id: get_output
         working-directory: eks-cluster
         run: |
-          echo "cluster_name=$(terraform output -raw eks_cluster_name)" >> $GITHUB_OUTPUT
+          cluster_name=$(terraform output -raw eks_cluster_name | tr -d '\n\r ')
+          echo "cluster_name=$cluster_name" >> $GITHUB_OUTPUT
 
       - name: Generate kubeconfig
         run: |
