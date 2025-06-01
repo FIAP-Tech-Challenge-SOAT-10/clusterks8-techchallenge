@@ -26,15 +26,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terraform Init
+      # =======================
+      # EKS INFRASTRUCTURE APPLY
+      # =======================
+      - name: Terraform Init (infra)
+        working-directory: eks-cluster
         run: terraform init
 
-      - name: Terraform Apply (create cluster + infra)
-        id: apply_infra
+      - name: Terraform Apply (infra)
+        working-directory: eks-cluster
         run: terraform apply -auto-approve
 
       - name: Get Cluster Name
         id: get_output
+        working-directory: eks-cluster
         run: |
           echo "cluster_name=$(terraform output -raw eks_cluster_name)" >> $GITHUB_OUTPUT
 
@@ -44,5 +49,11 @@ jobs:
             --region $AWS_REGION \
             --name ${{ steps.get_output.outputs.cluster_name }}
 
-      - name: Terraform Apply (k8s manifests)
+      # =======================
+      # APPLY MANIFESTS COM KUBECTL PROVIDER
+      # =======================
+      - name: Terraform Init (YAML kubectl apply)
+        run: terraform init
+
+      - name: Terraform Apply (YAML kubectl apply)
         run: terraform apply -auto-approve
