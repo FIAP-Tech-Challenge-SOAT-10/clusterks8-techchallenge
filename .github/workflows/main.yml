@@ -16,7 +16,7 @@ jobs:
       contents: read
 
     env:
-      CLUSTER_NAME: tech_challenge
+      CLUSTER_NAME: lanchonete-app
       AWS_REGION: ${{ secrets.AWS_REGION }}
 
     steps:
