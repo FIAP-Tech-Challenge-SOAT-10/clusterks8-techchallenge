@@ -41,17 +41,22 @@ jobs:
         working-directory: eks-cluster
         run: terraform output -raw eks_cluster_name
 
-      - name: Get Cluster Name
+      - name: Get Cluster Name (raw and clean)
         id: get_output
         working-directory: eks-cluster
         run: |
           cluster_name=$(terraform output -raw eks_cluster_name | tr -d '\n\r ')
+          echo "Cluster name used: $cluster_name"
           echo "cluster_name=$cluster_name" >> $GITHUB_OUTPUT
+
+      - name: Print cluster name from output
+        run: |
+          echo "Cluster name from output: ${{ steps.get_output.outputs.cluster_name }}"
 
       - name: Generate kubeconfig
         run: |
           aws eks update-kubeconfig \
-            --region $AWS_REGION \
+            --region ${{ env.AWS_REGION }} \
             --name ${{ steps.get_output.outputs.cluster_name }}
 
       # =======================
