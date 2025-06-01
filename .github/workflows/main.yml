@@ -1,30 +1,19 @@
-name: Terraform Deploy to EKS
+name: Terraform Infra + Kubernetes Deploy
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
-    name: Apply Terraform on EKS
+  terraform:
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
-
     env:
-      CLUSTER_NAME: lanchonete-app
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: us-east-1
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.6
 
@@ -34,14 +23,23 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Generate kubeconfig for EKS
-        run: |
-          aws eks update-kubeconfig --region $AWS_REGION --name  ${{ env.CLUSTER_NAME }}
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan
+      - name: Terraform Apply (create cluster + infra)
+        id: apply_infra
+        run: terraform apply -auto-approve
 
-      - name: Terraform Apply
+      - name: Get Cluster Name
+        id: get_output
+        run: |
+          echo "cluster_name=$(terraform output -raw eks_cluster_name)" >> $GITHUB_OUTPUT
+
+      - name: Generate kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name ${{ steps.get_output.outputs.cluster_name }}
+
+      - name: Terraform Apply (k8s manifests)
         run: terraform apply -auto-approve
