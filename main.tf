@@ -29,6 +29,10 @@ resource "kubectl_manifest" "webhook_deployment" {
   yaml_body = file("${path.module}/k8s/webhook/webhook-deployment.yaml")
 }
 
-resource "kubectl_manifest" "webhook_configmap" {
-  yaml_body = file("${path.module}/k8s/webhook/webhook-env-configmap.yaml")
+resource "kubectl_manifest" "webhook_service" {
+  yaml_body = file("${path.module}/k8s/webhook/webhook-service.yaml")
+}
+
+resource "kubectl_manifest" "webhook_ingress" {
+  yaml_body = file("${path.module}/k8s/webhook/webhook-ingress.yaml")
 }
