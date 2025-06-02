@@ -2,7 +2,7 @@ name: Terraform Infra + Kubernetes Deploy
 
 on:
   push:
-    branches: [ main ]
+    branches: [ teste ]
 
 jobs:
   terraform:
