@@ -17,25 +17,22 @@ jobs:
       CLUSTER_NAME: eks-lanchonete
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout código
+        uses: actions/checkout@v3
 
-      - uses: hashicorp/setup-terraform@v2.0.3
-        with:
-          terraform_version: 1.6.6
-
-      - name: Configure AWS credentials
+      - name: Configurar credenciais AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Generate kubeconfig
+      - name: Gerar kubeconfig
         run: |
           aws eks update-kubeconfig \
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.CLUSTER_NAME }}
 
-      - name: Criar Namespace manualmente
+      - name: Criar Namespace (se não existir)
         run: |
           kubectl get ns lanchonete-app || kubectl create ns lanchonete-app
 
@@ -48,11 +45,17 @@ jobs:
             --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Terraform Init (manifests)
-        run: terraform init
-
-      - name: Terraform Apply (manifests)
-        run: terraform apply -auto-approve
+      - name: Aplicar Manifests Kubernetes
+        run: |
+          kubectl apply -f k8s/base/namespace.yaml
+          kubectl apply -f k8s/apps/configmap.yaml
+          kubectl apply -f k8s/apps/app-deployment.yaml
+          kubectl apply -f k8s/apps/service.yaml
+          kubectl apply -f k8s/redis/redis-deployment.yaml
+          kubectl apply -f k8s/redis/redis-service.yaml
+          kubectl apply -f k8s/webhook/webhook-deployment.yaml
+          kubectl apply -f k8s/webhook/webhook-service.yaml
+          kubectl apply -f k8s/webhook/webhook-ingress.yaml
 
       - name: Obter IP do serviço app
         run: |
