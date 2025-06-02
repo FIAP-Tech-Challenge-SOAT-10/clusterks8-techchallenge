@@ -3,8 +3,8 @@ name: Kubernetes Manifests Deploy
 on:
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'eks-cluster/**'
+    paths:
+      - 'k8s/**'
 
 jobs:
   k8s-deploy:

@@ -1,0 +1,41 @@
+name: Add RBAC for juclops-tech
+
+on:
+    workflow_dispatch: # Executa manualmente
+
+jobs:
+    grant-access:
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: read
+        env:
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+            CLUSTER_NAME: eks-lanchonete
+
+        steps:
+            - name: Checkout repo
+              uses: actions/checkout@v3
+
+            - name: Configurar credenciais AWS (OIDC)
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                  role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+                  aws-region: ${{ env.AWS_REGION }}
+
+            - name: Configurar acesso ao cluster EKS
+              run: |
+                  aws eks update-kubeconfig --region $AWS_REGION --name $CLUSTER_NAME
+
+            - name: Adicionar juclops-tech ao aws-auth
+              run: |
+                  kubectl get configmap aws-auth -n kube-system -o yaml > aws-auth.yaml
+                  echo '
+                    - userarn: arn:aws:iam::043309328721:user/juclops-tech
+                      username: juclops-tech
+                      groups:
+                        - system:masters' >> aws-auth.yaml
+
+                  yq eval-all 'select(fileIndex == 0) * {"data": {"mapUsers": (.data.mapUsers + "\n" + input | @yaml)}}' aws-auth.yaml <(tail -n 5 aws-auth.yaml) > final-auth.yaml
+
+                  kubectl apply -f final-auth.yaml
