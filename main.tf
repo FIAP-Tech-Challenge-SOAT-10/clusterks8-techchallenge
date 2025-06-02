@@ -4,15 +4,15 @@ resource "kubectl_manifest" "namespace" {
 
 # App
 resource "kubectl_manifest" "app_configmap" {
-  yaml_body = file("${path.module}/k8s/app/configmap.yaml")
+  yaml_body = file("${path.module}/k8s/apps/configmap.yaml")
 }
 
 resource "kubectl_manifest" "app_deployment" {
-  yaml_body = file("${path.module}/k8s/app/app-deployment.yaml")
+  yaml_body = file("${path.module}/k8s/apps/app-deployment.yaml")
 }
 
 resource "kubectl_manifest" "app_service" {
-  yaml_body = file("${path.module}/k8s/app/service.yaml")
+  yaml_body = file("${path.module}/k8s/apps/service.yaml")
 }
 
 # Redis
