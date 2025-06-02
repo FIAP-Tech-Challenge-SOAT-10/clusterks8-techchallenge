@@ -1,3 +1,4 @@
+# NAMESPACE
 resource "kubectl_manifest" "namespace" {
   yaml_body = file("${path.module}/k8s/base/namespace.yaml")
   depends_on = [
