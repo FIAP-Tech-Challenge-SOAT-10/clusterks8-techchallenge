@@ -56,18 +56,3 @@ jobs:
           kubectl apply -f k8s/webhook/webhook-deployment.yaml
           kubectl apply -f k8s/webhook/webhook-service.yaml
           kubectl apply -f k8s/webhook/webhook-ingress.yaml
-
-      - name: Obter IP do serviço app
-        run: |
-          for i in {1..10}; do
-            IP=$(kubectl get svc app -n lanchonete-app -o jsonpath="{.status.loadBalancer.ingress[0].ip}" 2>/dev/null)
-            if [[ -n "$IP" ]]; then
-              echo "✅ IP: $IP"
-              echo "IP_SERVICO=$IP" >> $GITHUB_ENV
-              exit 0
-            fi
-            echo "Tentando obter IP... ($i)"
-            sleep 15
-          done
-          echo "❌ IP ainda indisponível."
-          exit 1
