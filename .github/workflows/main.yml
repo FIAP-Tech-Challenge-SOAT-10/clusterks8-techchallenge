@@ -51,7 +51,9 @@ jobs:
       # APPLY MANIFESTS COM KUBECTL PROVIDER
       # =======================
       - name: Terraform Init (YAML kubectl apply)
+        working-directory: .
         run: terraform init
 
       - name: Terraform Apply (YAML kubectl apply)
+        working-directory: .
         run: terraform apply -auto-approve
