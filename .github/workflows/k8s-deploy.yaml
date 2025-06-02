@@ -35,6 +35,16 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.CLUSTER_NAME }}
 
+      # ⚠️ Etapa nova: cria o Secret no cluster ANTES do Terraform Apply
+      - name: Criar Secret no cluster
+        run: |
+          kubectl create secret generic app-secrets \
+            --namespace lanchonete-app \
+            --from-literal=DB_PASS=${{ secrets.DB_PASS }} \
+            --from-literal=ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
+            --from-literal=REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Terraform Init (manifests)
         run: terraform init
 
@@ -55,6 +65,3 @@ jobs:
           done
           echo "❌ IP ainda indisponível."
           exit 1
-
-      - name: Mostrar link do app
-        run: echo "http://$IP_SERVICO/webhook"
