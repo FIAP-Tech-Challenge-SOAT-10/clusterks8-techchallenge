@@ -35,7 +35,10 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.CLUSTER_NAME }}
 
-      # ⚠️ Etapa nova: cria o Secret no cluster ANTES do Terraform Apply
+      - name: Criar Namespace manualmente
+        run: |
+          kubectl get ns lanchonete-app || kubectl create ns lanchonete-app
+
       - name: Criar Secret no cluster
         run: |
           kubectl create secret generic app-secrets \
